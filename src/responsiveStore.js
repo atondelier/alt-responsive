@@ -6,15 +6,13 @@ import {transform, keys, throttle} from 'lodash'
 // an alt store to manage responsive designs
 export default class ResponsiveStore {
     constructor() {
-        // make sure there is at least an empty breakpoints object
-        this.breakpoints = this.breakpoints ? this.breakpoints : {}
         // create media queries out of the breakpoints
-        this.media_queries = MediaQuery.asObject(this.breakpoints)
+        this.media_queries = MediaQuery.asObject(this.get_breakpoints())
 
         // set the initial store state
 
         // the current width of the browser
-        const browser_width = window.innerWidth
+        const browser_width = this.get_inner_width()
         // set the initial values
         this.browser_width = browser_width
         this.current_media_type = this.get_current_media_type()
@@ -25,7 +23,7 @@ export default class ResponsiveStore {
         // when the browser resizes
         window.addEventListener('resize', throttle(() => {
             // the current width of the browser
-            const width = window.innerWidth
+            const width = this.get_inner_width()
             // update the store state
             this.setState({
                 browser_width: width,
@@ -37,9 +35,16 @@ export default class ResponsiveStore {
         }), 100)
     }
 
+    get_breakpoints() {
+        return {}
+    }
+
+    get_inner_width() {
+        return window.innerWidth
+    }
 
     get_less_than(browser_width) {
-        return transform(this.breakpoints, (result, breakpoint, media_type) => {
+        return transform(this.get_breakpoints(), (result, breakpoint, media_type) => {
             // if the breakpoint is a number
             if (typeof breakpoint === 'number') {
                 // store wether or not it is less than the breakpoint
@@ -52,7 +57,7 @@ export default class ResponsiveStore {
 
 
     get_greater_than(browser_width) {
-        return transform(this.breakpoints, (result, breakpoint, media_type) => {
+        return transform(this.get_breakpoints(), (result, breakpoint, media_type) => {
             // if the breakpoint is a number
             if (typeof breakpoint === 'number') {
                 // store wether or not it is less than the breakpoint
@@ -67,7 +72,7 @@ export default class ResponsiveStore {
     // get the current media type from the browser width
     get_current_media_type() {
         // loop over the keys of the media query
-        const current_media = keys(this.media_queries).reduce((final_type, current_type) => {
+        return keys(this.media_queries).reduce((final_type, current_type) => {
             // grab the corresponding query string
             const query_string = this.media_queries[current_type]
             // if the browser matches the string
@@ -78,10 +83,9 @@ export default class ResponsiveStore {
             // otherwise the browser does not match so return the previous type
             return final_type
         })
-
-        // return the current media type
-        return current_media
     }
 }
+
+ResponsiveStore.displayName = 'ResponsiveStore'
 
 // end of file

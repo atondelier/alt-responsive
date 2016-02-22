@@ -14,13 +14,24 @@ const default_breakpoints = {
  * @returns {class} Responsive store class to be passed to `alt.createStore`.
  */
 // export the factory (but not as default)
-export function create_responsive_store(breakpoints = default_breakpoints) {
+export function create_responsive_store(breakpoints = default_breakpoints, innerWidthGetter) {
     // add `infinity` breakpoint for upper bound
     breakpoints.infinity = Infinity
-    // add the breakpoints to the class
-    ResponsiveStore.prototype.breakpoints = breakpoints
     // return the store
-    return ResponsiveStore
+    class ConfiguredResponsiveStore extends ResponsiveStore {
+        get_breakpoints() {
+            return breakpoints
+        }
+        get_inner_width() {
+            if (typeof innerWidthGetter === 'function') {
+                return innerWidthGetter.apply(this, arguments)
+            }
+            return super.get_inner_width()
+        }
+    }
+    ConfiguredResponsiveStore.displayName = ResponsiveStore.displayName
+
+    return ConfiguredResponsiveStore
 }
 
 
