@@ -2,7 +2,7 @@
 node_modules
 
 # built source files
-build
+#build
 
 # thanks apple
 **/.DS_Store
